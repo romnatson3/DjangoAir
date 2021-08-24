@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% endblock %}
+{% block content %}
+
+
+<section class="container my-5" style="width: 350px; margin-left: auto; margin-right: auto;">    
+
+            <form method="post">
+            {% csrf_token %}
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Third step</h1>
+
+            <input type="text" name="first_name" value="{{ flight_data.first_name }}" placeholder="First Name" required="" class="form-control"/>
+            <input type="text" name="last_name" value="{{ flight_data.last_name }}" placeholder="Last Name" required="" class="form-control"/>
+            <input type="email" name="email" value="{{ flight_data.email }}" placeholder="Email" required="" class="form-control"/>
+
+            <div class="d-grid gap-2 my-4 d-flex">
+            <input type="submit" class="btn btn-primary" style="width: 50%" value="Finish">
+            <input type="" class="btn btn-success" style="width: 50%" onclick="window.history.back()" value="Previous">
+            </div> 
+            </form>
+</section>
+
+
+{% endblock %}

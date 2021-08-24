@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+
+<section class="container my-5" style="width: 350px; margin-left: auto; margin-right: auto;">    
+        <form class="form-signin" method='post'>
+            {% csrf_token %}
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center"> Sign in</h1>
+            <div class="d-grid gap-2 my-2">
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger">with Google+</a>
+            </div> 
+            <p style="text-align:center"> OR  </p>
+            <input type="text" name="username" id="username" value="" placeholder="username" required="" autofocus="" class="form-control">
+            <input type="password" name="password" id="password" value="" class="form-control" placeholder="password" required=""/>
+           <div class="d-grid gap-2 my-3">
+            <input type="submit" class="btn btn-success" value="Signin">
+            </div> 
+        </form>
+</section>
+
+
+{% endblock %}

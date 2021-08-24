@@ -1,0 +1,63 @@
+{% load static %}
+{% load bootstrap5 %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=1200px">
+    <title>{% block title %}{% endblock %}DjangoAir</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <style type="text/css">
+        body {
+            min-width: 1200px;
+            padding: 0px 0px;
+        }
+    </style>
+    </head>
+
+	<body>
+            <header>
+                <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+                  <div class="container-lg">
+                    <a class="navbar-brand" href="{% url 'first_step' %}">DjangoAir</a>
+
+                    {% if request.user.is_authenticated %}
+                      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                          <a class="nav-link active" href="{% url 'cabinet' %}">Personal cabinet</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link active" href="{% url 'checkin' %}">Check-in</a>
+                        </li>
+                      </ul>
+                    {% else %}
+                    {% endif %}
+
+                  </div>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                          <a class="nav-link" href="{% url 'signin' %}" >Sign In ({{ request.user }})</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="{% url 'signout' %}" >Sign Out</a>
+                        </li>
+                    </ul>
+                    </div>
+                </nav>
+            </header>
+
+<section class="container-lg">    
+    {% block content %}{% endblock %} 
+</section>
+
+    {% block script %}{% endblock %}
+
+    </body>
+</html>

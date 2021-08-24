@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% endblock %}
+{% block content %}
+{% load cloudinary %}
+
+
+<section class="container my-5" style="width: 350px; margin-left: auto; margin-right: auto;">    
+
+            <form method="post">
+            {% csrf_token %}
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Sign up</h1>
+            <div class="d-grid gap-2 my-2 d-flex">
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-danger" style="width: 50%;">with Google+</a>
+                <a href="{% url 'social:begin' 'github' %}" class="btn btn-secondary" style="width: 50%">with Github</a>
+            </div> 
+                
+                <p style="text-align:center">OR</p>
+
+            <input type="text" name="username" id="username" value="" placeholder="Username" required="" class="form-control"/>
+            <input type="password" name="password" id="password" value="" placeholder="Password" required="" class="form-control"/>
+            <input type="password" name="confirm_password" id="confirm_password" value="" placeholder="Confirm Password" required="" class="form-control"/>
+            <input type="email" name="email" id="email" value="" placeholder="Email" required="" class="form-control"/>
+            <input type="text" name="first_name" id="first_name" value="" placeholder="First Name" required="" class="form-control"/>
+            <input type="text" name="last_name" id="last_name" value="" placeholder="Last Name" class="form-control"/>
+           <div class="d-grid gap-2 my-3">
+            <input type="submit" class="btn btn-success" value="Register">
+            </div> 
+            </form>
+</section>
+
+
+{% block script %}
+<script src="{% get_media_prefix %}js/confirm_password.js"></script>
+{% endblock %}
+{% endblock %}

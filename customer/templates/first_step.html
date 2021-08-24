@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% endblock %}
+{% block content %}
+
+
+<section class="container my-5" style="width: 350px; margin-left: auto; margin-right: auto;">    
+
+            <form method="post">
+            {% csrf_token %}
+            <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">First step</h1>
+
+            <input list="from" name="source" value="{{ flight_data.source }}" placeholder="From" required="" class="form-control"/>
+            <datalist id="from">
+                {% for i in data %}
+                <option value="{{ i.name }}">
+                {% endfor %}
+            </datalist>
+            <input list="destination" name="destination" value="{{flight_data.destination }}" placeholder="Destination" required="" class="form-control"/>
+            <datalist id="destination">
+                {% for i in data %}
+                <option value="{{ i.name }}">
+                {% endfor %}
+            </datalist>
+            <input type="datetime-local" name="datetime" value="{{ flight_data.datetime }}" placeholder="Date Time" required="" class="form-control"/>
+            <input type="number" name="passengers" value="{{ flight_data.passengers }}" placeholder="Passengers" required="" class="form-control"/>
+
+            <div class="d-grid gap-2 my-3">
+            <input type="submit" class="btn btn-success" value="Next">
+            </div> 
+            </form>
+</section>
+
+
+{% endblock %}
