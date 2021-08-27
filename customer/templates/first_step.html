@@ -10,20 +10,18 @@
             {% csrf_token %}
             <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">First step</h1>
 
-            <input list="from" name="source" value="{{ flight_data.source }}" placeholder="From" required="" class="form-control"/>
-            <datalist id="from">
-                {% for i in data %}
-                <option value="{{ i.name }}">
-                {% endfor %}
-            </datalist>
-            <input list="destination" name="destination" value="{{flight_data.destination }}" placeholder="Destination" required="" class="form-control"/>
+            <input type="text" list="destination" name="destination" value="{{flight_data.destination }}" placeholder="Destination" required="" class="form-control"/>
             <datalist id="destination">
-                {% for i in data %}
-                <option value="{{ i.name }}">
+                {% for i in data.destination %}
+                <option value="{{ i }}">
                 {% endfor %}
             </datalist>
-            <input type="datetime-local" name="datetime" value="{{ flight_data.datetime }}" placeholder="Date Time" required="" class="form-control"/>
-            <input type="number" name="passengers" value="{{ flight_data.passengers }}" placeholder="Passengers" required="" class="form-control"/>
+
+            <input type="text" list="datetime" name="datetime" value="{{ flight_data.datetime }}" placeholder="Datetime" required="" class="form-control"/>
+            <datalist id="datetime">
+            </datalist>
+
+            <input type="number" name="passengers" value="{{ flight_data.passengers }}" min="1" placeholder="Passengers" required="" class="form-control"/>
 
             <div class="d-grid gap-2 my-3">
             <input type="submit" class="btn btn-success" value="Next">
@@ -31,5 +29,8 @@
             </form>
 </section>
 
+{% endblock %}
 
+{% block script %}
+<script src="{% get_media_prefix %}js/datetime.js"></script>
 {% endblock %}

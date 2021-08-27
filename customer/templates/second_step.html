@@ -11,35 +11,35 @@
             <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Second step</h1>
 
             <div class="form-check">
-            <input class="form-check-input" type="radio" name="seat_class" id="economy" value="economy" checked>
+            <input class="form-check-input" type="radio" name="seat_class" id="economy" value="economy" {% if flight_data.seat_class == 'economy' %} checked {% endif %}>
             <label class="form-check-label" for="economy">Economy Class ({{ data.economy }} {{ flight_data.currency }})
             </label>
             </div>
             <div class="form-check">
-            <input class="form-check-input" type="radio" name="seat_class" id="premium_economy" value="premium_economy">
+            <input class="form-check-input" type="radio" name="seat_class" id="premium_economy" value="premium_economy" {% if flight_data.seat_class == 'premium_economy' %} checked {% endif %}>
             <label class="form-check-label" for="premium_economy">Premium Economy Class ({{ data.premium_economy }} {{ flight_data.currency }})
             </label>
             </div>
             <div class="form-check">
-            <input class="form-check-input" type="radio" name="seat_class" id="business" value="business">
+            <input class="form-check-input" type="radio" name="seat_class" id="business" value="business" {% if flight_data.seat_class == 'business' %} checked {% endif %}>
             <label class="form-check-label" for="business">Business Class ({{ data.business }} {{ flight_data.currency }})
             </label>
             </div>
             <div class="form-check">
-            <input class="form-check-input" type="radio" name="seat_class" id="first_class" value="first_class">
+            <input class="form-check-input" type="radio" name="seat_class" id="first_class" value="first_class" {% if flight_data.seat_class == 'first_class' %} checked {% endif %}>
             <label class="form-check-label" for="first_class">First-Class ({{ data.first_class }} {{ flight_data.currency }})
             </label>
             </div>
             <div class="form-check">
             <input class="form-check-input" type="checkbox" value="" {% if flight_data.lunch %} checked {% endif %}name="lunch">
-            Lunch ({{ data.lunch }} {{ data.currency }})
+            Lunch ({{ data.lunch }} {{ flight_data.currency }})
             </div>
             <div class="form-check">
             <input class="form-check-input" type="checkbox" value="" {% if flight_data.luggage %} checked {% endif %} name="luggage">
-                Luggage ({{ data.luggage }} {{ data.currency }})
+                Luggage ({{ data.luggage }} {{ flight_data.currency }})
 	    </div>
 
-            <h4 class="my-3" style="text-align:left">Total price: {{ data.price_for_one_seat }} {{ data.currency }}</h4>
+            <h4 id="total_price" class="my-3" style="text-align:left">Total price: {{ data.price_for_one_seat }} {{ flight_data.currency }}</h4>
 
             <div class="d-grid gap-2 my-4 d-flex">
             <input type="submit" class="btn btn-success" style="width: 50%" value="Next">
@@ -49,4 +49,8 @@
 </section>
 
 
+{% endblock %}
+
+{% block script %}
+<script src="{% get_media_prefix %}js/count_total_price.js"></script>
 {% endblock %}
