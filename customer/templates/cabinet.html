@@ -4,9 +4,38 @@
 {% block content %}
 
 
-<section class="container my-5" style="width: 350px; margin-left: auto; margin-right: auto;">    
+<section class="container my-5" style="width: 1000px; margin-left: auto; margin-right: auto;">    
+    
+    <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Tickets list</h1>
 
-    Home
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Destination</th>
+          <th scope="col">Flight datetime</th>
+          <th scope="col">#Flight</th>
+          <th scope="col">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for i in tickets %}
+
+              <tr {% if i.gateway_passed %}class="table-info text-muted"{% else %}class="table-info"{% endif %}>
+              <th scope="row">{{forloop.counter}}</th>
+              <td>{{i.first_name}} {{i.last_name}}</td>
+              <td>{{i.flight.destination}}</td>
+              <td>{{i.datetime | date:'d.m.Y H:i:s'}}</td>
+              <td>{{i.flight}}</td>
+              <td>{{i.total_price}}</td>
+            </tr>
+
+        {% endfor %}
+
+      </tbody>
+    </table>
 
 
 </section>

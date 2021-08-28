@@ -4,14 +4,14 @@
 {% block content %}
 
 
-<section class="container my-5" style="width: 350px; margin-left: auto; margin-right: auto;">    
+<section class="container my-5" style="width: 700px; margin-left: auto; margin-right: auto;">    
 
-    {% if exists %}
-    <p style="text-align:center">A letter with a ticket has been sent to the email: {{ email }}, the user already exists, please
+    {% if not new_user %}
+    <p style="text-align:center">A letter with a ticket has been sent to the email: {{ flight_data.email }}, the user already exists, please
       <a href="{% url 'signin' %}" >Sign In</a>
     </p>
     {% else %}
-    <p style="text-align:center">A letter with a ticket and credentials has been sent to the email: {{ email }}, please
+    <p style="text-align:center">A letter with a ticket and credentials has been sent to the email: {{ flight_data.email }}, please
       <a href="{% url 'signin' %}" >Sign In</a>
     {% endif %}
 

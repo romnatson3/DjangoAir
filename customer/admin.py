@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import City, Option, SeatClass, Flight, Ticket, Airplane, Gate
+from .models import City, Option, SeatClass, Flight, Ticket, Airplane, Gate, SeatNumber
 
 
 
@@ -7,6 +7,7 @@ from .models import City, Option, SeatClass, Flight, Ticket, Airplane, Gate
 class CityAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'country')
     list_filter = ('name',)
+
 
 @admin.register(Airplane)
 class AirplaneAdmin(admin.ModelAdmin):
@@ -28,6 +29,11 @@ class SeatClassAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'price')
 
 
+@admin.register(SeatNumber)
+class SeatNumberAdmin(admin.ModelAdmin):
+    list_display = ('id', 'airplane', 'seat_class', 'number')
+
+
 @admin.register(Option)
 class OptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'price')
@@ -35,6 +41,6 @@ class OptionAdmin(admin.ModelAdmin):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'name_passenger', 'lunch', 'luggage', 'flight',
-                    'datetime', 'seat_class', 'total_price', 'passengers', 'gate',
-                    'gateway_passed')
+    list_display = ('id', 'user', 'first_name', 'last_name', 'lunch', 'luggage', 'flight',
+                    'datetime', 'seat_class', 'total_price', 'gate', 'seat',
+                    'gateway_passed', 'ticket_code', 'create_datetime')

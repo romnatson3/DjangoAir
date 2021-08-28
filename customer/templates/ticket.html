@@ -12,7 +12,7 @@
                 border: 2px solid black;
                 border-radius: 30px 30px;
                 width: 700px;
-                height: 320px;
+                height: 310px;
                 position: relative;
              /* margin-top: 2%;
                 margin-left: 2%; */
@@ -107,9 +107,9 @@
     </head>
     <body>
 
-        {% if not flight_data.exists %}
+        {% if new_user %}
         <h2>Credentials:</h2>
-        <h4>Login: {{flight_data.username}}</h4>
+        <h4>Login: {{flight_data.email}}</h4>
         <h4>Password: {{flight_data.password}}</h4>
         <hr><br><br> 
         {% else %}
@@ -125,33 +125,25 @@
             <div class="cont">
                 <div class="left">
                   <div class="l1">
-                    {% if request.user.is_authenticated %}
-                    <div class="l">Name of passenger<div class="li">{{request.user.first_name}} {{request.user.last_name}}</div></div>
-                    {% else %}
                     <div class="l">Name of passenger<div class="li">{{flight_data.first_name}} {{flight_data.last_name}}</div></div>
-                    {% endif %}
                     <div class="l">Class<div class="li" style="width: 150px">{{flight_data.seat_class}}</div></div>
                     <div class="l">flight<div class="li">{{flight_data.flight}}</div></div>
                     <div class="l">Destination<div class="li">{{flight_data.destination}}</div></div>
-                    <div class="l">Passengers<div class="li" style="width: 50px">{{flight_data.passengers}}</div></div>
+                    <div class="l">TICKET CODE<div class="li" style="width: 200px">{{flight_data.ticket_code}}</div></div>
                   </div>
                   <div class="l2">
-                    <div class="l">DATE TIME<div class="li">{{flight_data.datetime | date:'c'}}</div></div>
+                    <div class="l">DATE TIME<div class="li">{{flight_data.datetime | date:'d.m.Y H:i:s'}}</div></div>
                     <div class="l">GATE<div class="li" style="width: 70px">{{flight_data.gate}}</div></div>
-                    <div class="l">SEAT<div class="li" style="width: 70px"></div></div>
+                    <div class="l">SEAT<div class="li" style="width: 70px">{{flight_data.seat}}</div></div>
                     <b><div class="l total">Total price<div class="li">{{flight_data.total_price}} {{flight_data.currency}}</div></div></b>
                  </div>
                 </div>
                 <div class="right">
-                    {% if flight_data.exists %}
-                        <div class="r"><p class="rt">NAME</p><div class="ri">{{request.user.first_name}} {{request.user.last_name}}</div></div>
-                    {% else %}
-                        <div class="r"><p class="rt">NAME</p><div class="ri">{{flight_data.first_name}} {{flight_data.last_name}}</div></div>
-                    {% endif %}
+                    <div class="r"><p class="rt">NAME</p><div class="ri" style="font-size:12px">{{flight_data.first_name}} {{flight_data.last_name}}</div></div>
                     <div class="r"><p class="rt">TO</p><div class="ri">{{flight_data.destination}}</div></div>
-                    <div class="r"><p class="rt">DATE</p><div class="ri" style="font-size:12px">{{flight_data.datetime | date:'c'}}</div></div>
+                    <div class="r"><p class="rt">DATE</p><div class="ri" style="font-size:12px">{{flight_data.datetime | date:'d.m.Y H:i:s'}}</div></div>
                     <div class="r"><p class="rt">GATE</p><div class="ri">{{flight_data.gate}}</div></div>
-                    <div class="r"><p class="rt">SEAT</p><div class="ri"></div></div>
+                    <div class="r"><p class="rt">SEAT</p><div class="ri">{{flight_data.seat}}</div></div>
                     <div class="r"><p class="rt">FLIGHT</p><div class="ri">{{flight_data.flight}}</div></div>
                 </div>
             </div>
