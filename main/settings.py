@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#ooysxv$hd2fi(pdfzhu3!bfg*+&v=fuf^3*&am*^rck29h^j-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '10.8.0.2', 'romair.herokuapp.com']
 
@@ -99,12 +99,25 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'air',
+        'ENGINE': 'django.db.backends.postgresql',
+        'USER': 'air',
+        'PASSWORD': 'air',
+        'HOST': 'postgres',
+        'PORT': '5432'
     }
 }
+
 
 
 # Password validation
@@ -129,7 +142,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+#LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uk-ua'
 
 TIME_ZONE = 'UTC'
 
@@ -167,14 +181,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #    }
 #}
 
-REDIS_PASS = os.getenv('REDIS_PASS')
-REDIS_HOST = 'rns.pp.ua'
+REDIS_HOST = 'redis'
 REDIS_PORT = '6379'
 
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'redis://:{REDIS_PASS}@{REDIS_HOST}:{REDIS_PORT}/1',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient'
         },
@@ -186,8 +199,8 @@ CACHES = {
 
 CURRENCY = 'USD'
 
-CELERY_BROKER_URL = f'redis://:{REDIS_PASS}@{REDIS_HOST}:{REDIS_PORT}/0'
-CELERY_RESULT_BACKEND = f'redis://:{REDIS_PASS}@{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELRY_TASK_SERIALIZER = 'json'
 CELRY_RESULT_SERIALIZER = 'json'

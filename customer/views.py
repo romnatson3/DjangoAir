@@ -147,7 +147,7 @@ def third_step(request):
             new_user = False
 
         temp = {i: j for i, j in flight_data.__dict__.items() if i not in [
-            'destination', 'password', 'currency', 'email', 'username']}
+            'destination', 'password', 'currency', 'email', 'username', 'error']}
         if not Ticket.objects.filter(ticket_code=flight_data.ticket_code).exists():
             Ticket.objects.create(**temp)
         cache.set(key, flight_data)
