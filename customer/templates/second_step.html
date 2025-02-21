@@ -11,7 +11,7 @@
 
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="seat_class" id="economy" value="economy" required>
-                <label class="form-check-label" for="economy">Economy Class ({{ data.economy }} {{ flight_data.currency }}</label>
+                <label class="form-check-label" for="economy">Economy Class ({{ data.economy }} {{ flight_data.currency }})</label>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="seat_class" id="premium_economy" value="premium_economy">
@@ -57,5 +57,5 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% get_media_prefix %}js/javascript.js"></script>
+<script src="{% get_static_prefix %}customer/js/get_data.js"></script>
 {% endblock %}

@@ -11,10 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv
 import os
 
-load_dotenv('.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,16 +25,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#ooysxv$hd2fi(pdfzhu3!bfg*+&v=fuf^3*&am*^rck29h^j-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.getenv('DJANGO_DEBUG', 0)))
 
-ALLOWED_HOSTS = ['localhost', '10.8.0.2', 'romair.herokuapp.com']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_HOST = 'rns.pp.ua'
-EMAIL_HOST_USER = 'info'
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
+EMAIL_SERVER_PORT = os.getenv('EMAIL_SERVER_PORT')
+EMAIL_SERVER_NAME = os.getenv('EMAIL_SERVER_NAME')
 
 
 # Application definition
@@ -49,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap5',
-    'social_django',
     'customer'
 ]
 
@@ -68,7 +64,7 @@ ROOT_URLCONF = 'main.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'customer/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,14 +80,8 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'social_core.backends.google.GoogleOAuth2',
 ]
 
-
-#Google OAuth2.0
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
-LOGIN_REDIRECT_URL = '/'
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
@@ -99,43 +89,35 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
-
-
 DATABASES = {
     'default': {
-        'NAME': 'air',
         'ENGINE': 'django.db.backends.postgresql',
-        'USER': 'air',
-        'PASSWORD': 'air',
-        'HOST': 'postgres',
-        'PORT': '5432'
-    }
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT'),
+        'CONN_MAX_AGE': 0,
+    },
 }
-
 
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-#    },
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-#    },
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-#    },
-#    {
-#        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-#    },
+   {
+       'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+   },
+   {
+       'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+   },
+   {
+       'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+   },
+   {
+       'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+   },
 ]
 
 
@@ -153,7 +135,7 @@ USE_L10N = True
 
 USE_TZ = False
 
-TIME_ZONE = 'Europe/Kiev'
+TIME_ZONE = 'Europe/Kyiv'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -165,21 +147,10 @@ MEDIA_ROOT = Path(BASE_DIR, 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#        'LOCATION': 'unique-snowflake',
-#        'TIMEOUT': 60,
-#    }
-#}
 
 REDIS_HOST = 'redis'
 REDIS_PORT = '6379'
@@ -191,7 +162,7 @@ CACHES = {
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient'
         },
-        'KEY_PREFIX': 'romair',
+        'KEY_PREFIX': '',
         'TIMEOUT': None,
     }
 }
@@ -204,4 +175,39 @@ CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELRY_TASK_SERIALIZER = 'json'
 CELRY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Europe/Kiev'
+CELERY_TIMEZONE = 'Europe/Kyiv'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'custom': {
+            'format': '[%(asctime)s] %(levelname)-7s %(message)s ',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'formatter': 'custom',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'customer': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+SOCIAL_AUTH_GOOGLE_CLIENT_ID = os.getenv('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_SECRET')
+
+SOCIAL_AUTH_GITHUB_CLIENT_ID = os.getenv('SOCIAL_AUTH_GITHUB_CLIENT_ID')
+SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')

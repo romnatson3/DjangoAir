@@ -10,17 +10,17 @@
             {% csrf_token %}
             <h1 class="h3 mb-3 font-weight-normal" style="text-align: center">Online Check-in</h1>
 
-            <input type="text" name="first_name" value="{{flight_data.first_name}}" placeholder="First Name" required="" class="form-control"/>
-            <input type="text" name="last_name" value="{{flight_data.last_name}}" placeholder="Last Name" required="" class="form-control"/>
+            <input type="text" name="first_name" value="{{flight_data.first_name}}" placeholder="First Name" required="" class="form-control mb-1"/>
+            <input type="text" name="last_name" value="{{flight_data.last_name}}" placeholder="Last Name" required="" class="form-control mb-1"/>
 
-            <input list="destination" name="destination" value="{{flight_data.destination }}" placeholder="Destination" required="" class="form-control"/>
+            <input list="destination" name="destination" value="{{flight_data.destination }}" placeholder="Destination" required="" class="form-control mb-1"/>
             <datalist id="destination">
                 {% for i in data.destination %}
                 <option value="{{ i }}">
                 {% endfor %}
             </datalist>
 
-            <input type="text" list="datetime" name="datetime" value="{{ flight_data.datetime | date:'d.m.Y H:i:s' }}" placeholder="Datetime" required="" class="form-control"/>
+            <input type="text" list="datetime" name="datetime" value="{{ flight_data.datetime | date:'d.m.Y H:i:s' }}" placeholder="Datetime" required="" class="form-control mb-1"/>
             <datalist id="datetime">
             </datalist>
             
@@ -68,5 +68,5 @@
 
 {% endblock %}
 {% block script %}
-<script src="{% get_media_prefix %}js/javascript.js"></script>
+<script src="{% get_static_prefix %}customer/js/get_data.js"></script>
 {% endblock %}

@@ -17,17 +17,18 @@ class FlightAdmin(admin.ModelAdmin):
     list_display = ('id', 'airplane', 'destination', 'gate', 'datetime')
     list_filter = ('airplane',)
     list_display_links = ('destination',)
-#    fields = [('airplane', 'destination', 'datetime'),]
     fieldsets = (
-            ('Gate_Airplane', {
+        (
+            'Gate_Airplane', {
                 'fields': (('gate', 'airplane'),)
-                }),
-            ('Destination', {
-                'classes': ('collapse',),
-                'fields': (('destination', 'datetime'),)
-                }),
+            }
+        ),
+        (
+            'Destination', {
+                'classes': ('collapse',), 'fields': (('destination', 'datetime'),)
+            }
+        ),
     )
-
 
 
 @admin.register(City)
@@ -43,19 +44,19 @@ class CityAdmin(admin.ModelAdmin):
 @admin.register(Airplane)
 class AirplaneAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
-
+    list_display_links = ('name',)
 
 
 @admin.register(Gate)
 class GateAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
-
+    list_display_links = ('name',)
 
 
 @admin.register(SeatClass)
 class SeatClassAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'price')
-
+    list_display_links = ('name',)
 
 
 @admin.register(SeatNumber)
@@ -63,17 +64,18 @@ class SeatNumberAdmin(admin.ModelAdmin):
     list_display = ('id', 'airplane', 'seat_class', 'number')
 
 
-
 @admin.register(Option)
 class OptionAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'price')
-    readonly_fields = ('price',)
-
+    # readonly_fields = ('price',)
+    list_display_links = ('name',)
 
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'first_name', 'last_name', 'lunch', 'luggage', 'flight',
-                    'datetime', 'seat_class', 'total_price', 'gate', 'seat',
-                    'gateway_passed', 'ticket_code', 'create_datetime')
+    list_display = (
+        'id', 'user', 'first_name', 'last_name', 'lunch', 'luggage', 'flight',
+        'datetime', 'seat_class', 'total_price', 'gate', 'seat', 'gateway_passed',
+        'ticket_code', 'create_datetime'
+    )
     list_editable = ['gateway_passed']

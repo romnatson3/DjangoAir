@@ -14,11 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path, include
+from django.urls import path, re_path
 from django.conf import settings
 from django.views.static import serve
-from django.contrib.auth import logout
 from customer.views import signin, signout, first_step, second_step, third_step, cabinet, checkin, get_flight_date, count_total_price, available_seat
+from customer.oauth import GoogleLoginView, GoogleCallbackView
 
 
 urlpatterns = [
@@ -33,7 +33,8 @@ urlpatterns = [
     path('get_flight_date/', get_flight_date, name='get_flight_date'),
     path('available_seat/', available_seat, name='available_seat'),
     path('count_total_price/', count_total_price, name='count_total_price'),
-    path('', include('social_django.urls', namespace='social')),
-    re_path(r'static/(?P<path>.*)$', serve, {'document_root':settings.STATIC_ROOT}),
-    re_path(r'media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),
+    re_path(r'static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    path('oauth/google/login/', GoogleLoginView.as_view(), name='google_login'),
+    path('oauth/google/callback/', GoogleCallbackView.as_view(), name='google_callback'),
 ]

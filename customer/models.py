@@ -2,13 +2,12 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-
 class City(models.Model):
-
     class Meta():
         verbose_name = 'city'
+        verbose_name_plural = 'cities'
         indexes = [
-           models.Index(fields=['name']),
+            models.Index(fields=['name']),
         ]
 
     name = models.CharField(max_length=256, blank=False)
@@ -18,11 +17,10 @@ class City(models.Model):
         return f'{self.name} ({self.country})'
 
 
-
 class SeatClass(models.Model):
-
     class Meta():
         verbose_name = 'seat_class'
+        verbose_name_plural = 'seat_classes'
 
     name = models.CharField(max_length=256)
     price = models.FloatField(default=0.00)
@@ -31,9 +29,7 @@ class SeatClass(models.Model):
         return f'{self.name}'
 
 
-
 class Option(models.Model):
-
     class Meta():
         verbose_name = 'option'
 
@@ -44,9 +40,7 @@ class Option(models.Model):
         return f'{self.name}'
 
 
-
 class Airplane(models.Model):
-
     class Meta():
         verbose_name = 'airplane'
 
@@ -56,9 +50,7 @@ class Airplane(models.Model):
         return f'{self.name}'
 
 
-
 class Gate(models.Model):
-
     class Meta():
         verbose_name = 'gate'
 
@@ -68,9 +60,7 @@ class Gate(models.Model):
         return f'{self.name}'
 
 
-
 class SeatNumber(models.Model):
-
     class Meta():
         verbose_name = 'seat_number'
 
@@ -82,9 +72,7 @@ class SeatNumber(models.Model):
         return f'{self.number}'
 
 
-
 class Flight(models.Model):
-
     class Meta():
         verbose_name = 'flight'
 
@@ -94,16 +82,14 @@ class Flight(models.Model):
     datetime = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.id}'
-
+        return str(self.id)
 
 
 class Ticket(models.Model):
-
     class Meta():
         verbose_name = 'ticket'
         indexes = [
-           models.Index(fields=['ticket_code']),
+            models.Index(fields=['ticket_code']),
         ]
 
     user = models.ForeignKey(User, on_delete=models.PROTECT)

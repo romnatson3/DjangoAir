@@ -1,12 +1,13 @@
+import logging
+from dataclasses import dataclass, asdict
 from django.shortcuts import render, redirect
-from django.http import HttpResponseNotFound, JsonResponse
+from django.http import JsonResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import User, City, Option, SeatClass, Flight, Ticket, Airplane, Gate, SeatNumber
+from customer.models import User, City, Option, SeatClass, Flight, Ticket, SeatNumber
 from django.core.cache import cache
-from main.settings import CURRENCY
 import string
 import random
 import json
@@ -14,8 +15,27 @@ from .tasks import send_mail_task
 from datetime import datetime
 
 
+logger = logging.getLogger(__name__)
+
+
+@dataclass
 class FlightData():
-    pass
+    destination: str = ''
+    datetime: datetime = None
+    flight: Flight = None
+    gate: str = ''
+    seat_class: SeatClass = None
+    seat: SeatNumber = None
+    lunch: bool = False
+    luggage: bool = False
+    first_name: str = ''
+    last_name: str = ''
+    email: str = ''
+    ticket_code: str = ''
+    user: User = None
+    total_price: float = 0.00
+    error: str = ''
+
 
 @csrf_exempt
 def signin(request):
@@ -100,15 +120,18 @@ def second_step(request):
             data[i.name] = i.price
         for i in option:
             data[i.name] = i.price
+        logger.info(f'Data for second step: {data}')
         return render(request, 'second_step.html', {'data': data, 'flight_data': flight_data})
 
     if request.method == 'POST':
         flight_data.lunch = True if 'lunch' in request.POST else False
         flight_data.luggage = True if 'luggage' in request.POST else False
         flight_data.seat_class = SeatClass.objects.get(name=request.POST['seat_class'])
-        seat = SeatNumber.objects.filter(airplane=flight_data.flight.airplane,
-                                         seat_class=flight_data.seat_class,
-                                         number=request.POST.get('available_seat')).first()
+        seat = SeatNumber.objects.filter(
+            airplane=flight_data.flight.airplane,
+            seat_class=flight_data.seat_class,
+            number=request.POST.get('available_seat')
+        ).first()
         if seat:
             flight_data.seat = seat
             flight_data.gate = flight_data.flight.gate
@@ -123,37 +146,43 @@ def second_step(request):
 
 def third_step(request):
     key = request.session.session_key
+    logger.info(f'Key: {key}')
     flight_data = cache.get(key)
     if not flight_data:
         return redirect(reverse('second_step'))
-
     if request.method == 'GET':
         return render(request, 'third_step.html', {'flight_data': flight_data})
-
     if request.method == 'POST':
         flight_data.first_name = request.POST['first_name']
         flight_data.last_name = request.POST['last_name']
         flight_data.email = request.POST['email']
-        flight_data.ticket_code = hash(flight_data.email + flight_data.first_name + flight_data.last_name +
-                                       str(flight_data.flight.id))
+        flight_data.ticket_code = hash(
+            flight_data.email + flight_data.first_name + flight_data.last_name + str(flight_data.flight.id)
+        )
         try:
             flight_data.password = get_random_string()
-            user = User.objects.create_user(username=flight_data.email, email=flight_data.email,
-                                            is_active=True, password=flight_data.password)
+            user = User.objects.create_user(
+                username=flight_data.email, email=flight_data.email,
+                is_active=True, password=flight_data.password
+            )
             flight_data.user = user
             new_user = True
         except:
             flight_data.user = User.objects.get(username=flight_data.email)
             new_user = False
-
-        temp = {i: j for i, j in flight_data.__dict__.items() if i not in [
-            'destination', 'password', 'currency', 'email', 'username', 'error']}
+        flight_data_dict = asdict(flight_data)
+        temp = {
+            i: j for i, j in flight_data_dict.items()
+            if i not in ['destination', 'password', 'currency', 'email', 'username', 'error']
+        }
+        logger.info(f'Flight data: {flight_data_dict}')
         if not Ticket.objects.filter(ticket_code=flight_data.ticket_code).exists():
             Ticket.objects.create(**temp)
         cache.set(key, flight_data)
-        response = render(request, 'ticket.html', {'flight_data': flight_data, 'new_user': new_user})
+        response = render(request, 'ticket.html', {'flight_data': flight_data_dict, 'new_user': new_user})
+        return response
         send_mail_task.delay(flight_data.email, response.content.decode('utf-8'))
-        return render(request, 'user.html', {'flight_data':flight_data, 'new_user':new_user})
+        return render(request, 'user.html', {'flight_data': flight_data_dict, 'new_user': new_user})
 
 
 @login_required(login_url='/signin/')
@@ -237,7 +266,7 @@ def total_price(flight_data):
 
 def get_flight_date(request):
     if request.method == 'POST':
-        if request.is_ajax():
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             try:
                 destination = json.load(request).get('destination')
                 city = City.objects.get(name=destination)
@@ -245,13 +274,13 @@ def get_flight_date(request):
                     destination=city).values('datetime')]
                 return JsonResponse(l, safe=False)
             except Exception as exc:
-                print(exc.__str__())
-    return HttpResponseNotFound()
+                logger.error(exc.__str__())
+    return JsonResponse({}, status=404)
 
 
 def count_total_price(request):
     if request.method == 'POST':
-        if request.is_ajax():
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             key = request.session.session_key
             flight_data = cache.get(key)
             d = {}
@@ -264,22 +293,26 @@ def count_total_price(request):
             except:
                 d['seat_class'] = 'economy'
             return JsonResponse(d, safe=False)
-    return HttpResponseNotFound()
+    return JsonResponse({}, status=404)
 
 
 def available_seat(request):
     if request.method == 'POST':
-        if request.is_ajax():
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             try:
                 data = json.load(request)
+                logger.info(f'Avaliable seat request: {data}')
                 try:
                     date_time = datetime.strptime(data['datetime'], '%d.%m.%Y %H:%M:%S')
                 except ValueError:
                     pass
                 city = City.objects.get(name=data['destination'])
+                logger.info(f'City: {city}')
                 flight = Flight.objects.get(destination=city, datetime=date_time)
+                logger.info(f'Flight: {flight}')
                 airplane = flight.airplane
                 seat_class = SeatClass.objects.get(name=data['seat_class'])
+                logger.info(f'Seat class: {seat_class}')
                 seat = SeatNumber.objects.filter(airplane=airplane, seat_class=seat_class).values('number')
                 all_seat = [i['number'] for i in seat]
                 tickets = Ticket.objects.filter(flight=flight, seat_class=seat_class)
@@ -290,8 +323,8 @@ def available_seat(request):
                 else:
                     return JsonResponse(all_seat, safe=False)
             except Exception as exc:
-                print(exc.__str__())
-    return HttpResponseNotFound()
+                logger.error(exc.__str__())
+    return JsonResponse({}, status=404)
 
 
 @login_required(login_url='/signin/')

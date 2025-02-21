@@ -1,9 +1,10 @@
-FROM python:3
+FROM python:3.12
 
-WORKDIR /romair
+WORKDIR /app
+COPY . /app
 
-COPY requirements.txt /romair
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN chmod +x /app/entrypoint.sh
 
-COPY . /romair
+ENTRYPOINT ["/app/entrypoint.sh"]
