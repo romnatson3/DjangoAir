@@ -35,6 +35,11 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_SERVER_PORT = os.getenv('EMAIL_SERVER_PORT')
 EMAIL_SERVER_NAME = os.getenv('EMAIL_SERVER_NAME')
 
+# EMAIL_HOST_PASSWORD = ''
+# EMAIL_HOST = 'mail.rns.pp.ua'
+# EMAIL_HOST_USER = 'info@rns.pp.ua'
+# EMAIL_PORT = 465
+# EMAIL_USE_SSL = True
 
 # Application definition
 

@@ -180,7 +180,7 @@ def third_step(request):
             Ticket.objects.create(**temp)
         cache.set(key, flight_data)
         response = render(request, 'ticket.html', {'flight_data': flight_data_dict, 'new_user': new_user})
-        return response
+        # return response
         send_mail_task.delay(flight_data.email, response.content.decode('utf-8'))
         return render(request, 'user.html', {'flight_data': flight_data_dict, 'new_user': new_user})
 

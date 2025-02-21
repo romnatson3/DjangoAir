@@ -1,64 +1,8 @@
-version: "3.5"
-
-volumes:
-  postgres_volume:
-
-services:
-  air:
-    build: .
-    restart: always
-    command: sh -c "gunicorn --bind 0.0.0.0:5000 main.wsgi"
-    environment:
-      - EMAIL_HOST_PASSWORD=!Qaz@Wsx
-      - SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=184290663033-ef57ci835s0oekpeoa54gfbpvks3ua7l.apps.googleusercontent.com
-      - SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=q-dIZml0PiUrn-CKPZTTyl-q
-#    volumes:
-#      - .:/romair
-    ports:
-      - 5000:5000
-    depends_on:
-      - redis
-      - postgres
-
-  celery:
-    build: .
-    restart: always
-    command: celery -A main worker -l INFO
-#    volumes:
-#      - .:/romair
-    depends_on:
-      - air
-      - redis    
-
-  flower:
-    build: .
-    command:  celery -A main flower --port=5555
-#    volumes:
-#      - .:/romair
-    ports:
-      - 5555:5555
-    depends_on:
-      - air
-      - redis
-      - celery
-
-  postgres:
-    build: ./postgres
-    restart: always
-    volumes:
-      - postgres_volume:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=16122011
-
-  redis:
-    image: redis
-    restart: always
-
-
 volumes:
   static:
   media:
-  db:
+  redis:
+  postgres:
 
 networks:
   layer:
@@ -66,7 +10,7 @@ networks:
 
 services:
   web:
-    image: gram:latest
+    image: air:latest
     deploy:
       mode: replicated
       replicas: 1
@@ -78,15 +22,17 @@ services:
     volumes:
       - static:/app/static/
       - media:/app/media/
-      - db:/app/data/
     networks:
       - layer
     env_file:
       - .env
+    depends_on:
+      - postgres
+      - redis
     logging:
       driver: syslog
       options:
-        tag: gram_web
+        tag: air_web
         syslog-facility: local5
 
   nginx:
@@ -105,77 +51,16 @@ services:
     logging:
       driver: syslog
       options:
-        tag: gram_nginx
+        tag: air_nginx
         syslog-facility: local5
 
-
-
-volumes:
-  trade_postgres:
-  trade_redis:
-  trade_static:
-  trade_rabbitmq:
-  trade_logs_web:
-  trade_logs_default:
-  trade_logs_bybit_futures:
-  trade_logs_bybit_futures_ws:
-  trade_logs_bybit_spot:
-  trade_logs_bybit_spot_ws:
-
-networks:
-  layer:
-    driver: bridge
-
-services:
-  web:
-    image: trade:latest
-    deploy:
-      mode: replicated
-      replicas: 1
-    build:
-      context: .
-      dockerfile: Dockerfile
-    entrypoint: /app/wait-for-it.sh -q -s -h postgres -p 5432 -- /app/entrypoint.sh
-    restart: always
+  redis:
+    image: redis:latest
+    entrypoint: redis-server --appendonly yes --maxmemory-policy volatile-ttl --aof-use-rdb-preamble yes --save "" --maxclients 65000
     volumes:
-      - trade_static:/app/static
-      - trade_logs_web:/app/logs
+      - redis:/data
     networks:
       - layer
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - redis
-    logging:
-      driver: 'none'
-
-  rabbitmq:
-    image: rabbitmq:management
-    env_file:
-      - .env
-    volumes:
-      - trade_rabbitmq:/var/lib/rabbitmq
-    networks:
-      - layer
-
-  nginx:
-    image: nginx:latest
-    restart: always
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - trade_static:/app/static:ro
-    ports:
-      - "80:80"
-    depends_on:
-      - web
-    networks:
-      - layer
-    logging:
-      driver: syslog
-      options:
-        tag: trade_nginx
-        syslog-facility: local7
 
   postgres:
     image: postgres:latest
@@ -183,156 +68,27 @@ services:
     env_file:
       - .env
     volumes:
-      - trade_postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     networks:
       - layer
     logging:
       driver: syslog
       options:
-        tag: trade_postgres
-        syslog-facility: local7
+        tag: air_postgres
+        syslog-facility: local5
 
-  redis:
-    image: redis:latest
-    entrypoint: redis-server --appendonly yes --maxmemory-policy volatile-ttl --aof-use-rdb-preamble yes --save "" --maxclients 65000
-    volumes:
-      - trade_redis:/data
-    networks:
-      - layer
-
-  # flower:
-  #   image: trade:latest
-  #   entrypoint: celery -A trade flower -l INFO --host=0.0.0.0 --port=5555
-  #   restart: always
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - rabbitmq
-  #     - redis
-  #   ports:
-  #     - "51452:5555"
-  #   depends_on:
-  #     - rabbitmq
-  #   networks:
-  #     - layer
-
-  beat:
-    image: trade:latest
-    entrypoint: sh -c "sleep 5 && celery -A trade beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-    deploy:
-      mode: replicated
-      replicas: 1
+  celery:
+    image: air:latest
+    entrypoint: celery -A main worker -l INFO
     restart: always
     depends_on:
-      - rabbitmq
-      - redis
-      - postgres
-      - default
-      - bybit_futures
-      - bybit_futures_ws
+      - redis    
     env_file:
       - .env
     networks:
       - layer
     logging:
-      driver: 'none'
-
-  default:
-    image: trade:latest
-    entrypoint: celery -A trade worker -c 10 -l INFO -Q default
-    deploy:
-      mode: replicated
-      replicas: 1
-    restart: always
-    volumes:
-      - trade_logs_default:/app/logs
-    depends_on:
-      - rabbitmq
-      - redis
-      - postgres
-    env_file:
-      - .env
-    networks:
-      - layer
-    logging:
-      driver: 'none'
-
-  bybit_futures:
-    image: trade:latest
-    entrypoint: celery -A trade worker -c 50 -l INFO -Q bybit_futures
-    deploy:
-      mode: replicated
-      replicas: 1
-    restart: always
-    volumes:
-      - trade_logs_bybit_futures:/app/logs
-    depends_on:
-      - rabbitmq
-      - redis
-      - postgres
-    env_file:
-      - .env
-    networks:
-      - layer
-    logging:
-      driver: 'none'
-
-  bybit_futures_ws:
-    image: trade:latest
-    entrypoint: celery -A trade worker -c 1 -l INFO -Q bybit_futures_ws
-    deploy:
-      mode: replicated
-      replicas: 1
-    restart: always
-    volumes:
-      - trade_logs_bybit_futures_ws:/app/logs
-    depends_on:
-      - rabbitmq
-      - redis
-      - postgres
-    env_file:
-      - .env
-    networks:
-      - layer
-    logging:
-      driver: 'none'
-
-  bybit_spot:
-    image: trade:latest
-    entrypoint: celery -A trade worker -c 50 -l INFO -Q bybit_spot
-    deploy:
-      mode: replicated
-      replicas: 1
-    restart: always
-    volumes:
-      - trade_logs_bybit_spot:/app/logs
-    depends_on:
-      - rabbitmq
-      - redis
-      - postgres
-    env_file:
-      - .env
-    networks:
-      - layer
-    logging:
-      driver: 'none'
-
-  bybit_spot_ws:
-    image: trade:latest
-    entrypoint: celery -A trade worker -c 1 -l INFO -Q bybit_spot_ws
-    deploy:
-      mode: replicated
-      replicas: 1
-    restart: always
-    volumes:
-      - trade_logs_bybit_spot_ws:/app/logs
-    depends_on:
-      - rabbitmq
-      - redis
-      - postgres
-    env_file:
-      - .env
-    networks:
-      - layer
-    logging:
-      driver: 'none'
+      driver: syslog
+      options:
+        tag: air_celery
+        syslog-facility: local5
